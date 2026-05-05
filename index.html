@@ -171,7 +171,14 @@
         .difficulty-easy { color: #40916c; font-weight: 600; }
         .difficulty-moderate { color: #e9b35f; font-weight: 600; }
         .difficulty-hard { color: #c97e5a; font-weight: 600; }
-        .badge-magic { background: #2d6a4f; color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; }
+        .region-tag {
+            display: inline-block;
+            background: #e8f0e8;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #2d6a4f;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -228,21 +235,16 @@
             font-size: 12px;
         }
         .filter-btn.active { background: #2d6a4f; color: white; border-color: #2d6a4f; }
-        .region-tag {
-            display: inline-block;
-            background: #e8f0e8;
+        .complete-btn {
+            background: #2d6a4f20;
+            border: 1px solid #2d6a4f;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 10px;
-            color: #2d6a4f;
+            cursor: pointer;
         }
-        .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        @media (max-width: 900px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } .stats-container { grid-template-columns: 1fr; } }
+        .complete-btn:hover { background: #2d6a4f; color: white; }
+        @media (max-width: 900px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) { .container { padding: 16px; } .header { padding: 12px 20px; } }
     </style>
 </head>
@@ -255,26 +257,23 @@
         </div>
         <div class="nav-tabs">
             <button class="nav-tab active" data-page="planner">🗺️ PLANNER</button>
-            <button class="nav-tab" data-page="hikes">🥾 TOURS</button>
+            <button class="nav-tab" data-page="tours">🥾 TOURS</button>
             <button class="nav-tab" data-page="stats">📊 STATS</button>
-            <button class="nav-tab" data-page="calendar">📅 CALENDAR</button>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <!-- PLANNER PAGE -->
     <div id="plannerPage" class="page active">
         <div class="hero-stats">
-            <div class="stat-card"><div class="stat-icon">🏔️</div><div class="stat-value" id="totalHikes">0</div><div class="stat-label">Hikes Planned</div></div>
+            <div class="stat-card"><div class="stat-icon">🏔️</div><div class="stat-value" id="totalHikes">0</div><div class="stat-label">Total Hikes</div></div>
             <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="completedHikes">0</div><div class="stat-label">Completed</div></div>
             <div class="stat-card"><div class="stat-icon">📏</div><div id="totalKm" class="stat-value">0</div><div class="stat-label">Total KM</div></div>
             <div class="stat-card"><div class="stat-icon">⬆️</div><div id="totalElevation" class="stat-value">0</div><div class="stat-label">Elevation (m)</div></div>
         </div>
-        
         <div class="card">
             <div class="card-header">
-                <div class="card-title"><i class="fas fa-plus-circle"></i> Plan a New Hike</div>
+                <div class="card-title"><i class="fas fa-plus-circle"></i> My Hikes</div>
                 <button class="btn-primary" onclick="openAddHikeModal()">+ Add Hike</button>
             </div>
             <div class="filter-buttons" id="plannerFilters">
@@ -284,29 +283,26 @@
                 <button class="filter-btn" data-filter="valais">Valais</button>
                 <button class="filter-btn" data-filter="vaud">Vaud</button>
                 <button class="filter-btn" data-filter="bern">Bern</button>
-                <button class="filter-btn" data-filter="fribourg">Fribourg</button>
             </div>
             <div id="hikesList"></div>
         </div>
     </div>
 
-    <!-- TOURS PAGE - Pre-made Magic Pass Tours -->
-    <div id="hikesPage" class="page">
+    <div id="toursPage" class="page">
         <div class="card">
             <div class="card-header">
-                <div class="card-title"><i class="fas fa-mountain"></i> Recommended Magic Pass Hikes</div>
+                <div class="card-title"><i class="fas fa-mountain"></i> Magic Pass Recommended Hikes</div>
             </div>
             <div class="filter-buttons" id="toursFilters">
                 <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="easy">Easy</button>
-                <button class="filter-btn" data-filter="moderate">Moderate</button>
-                <button class="filter-btn" data-filter="hard">Hard</button>
+                <button class="filter-btn" data-filter="Easy">Easy</button>
+                <button class="filter-btn" data-filter="Moderate">Moderate</button>
+                <button class="filter-btn" data-filter="Hard">Hard</button>
             </div>
             <div id="toursList"></div>
         </div>
     </div>
 
-    <!-- STATS PAGE -->
     <div id="statsPage" class="page">
         <div class="card">
             <div class="card-header"><div class="card-title"><i class="fas fa-chart-line"></i> Hiking Statistics</div></div>
@@ -320,31 +316,22 @@
                 <button class="btn-secondary" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Restore Backup</button>
                 <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(this)">
             </div>
-            <p style="font-size: 11px; color: #6b8c6b; margin-top: 16px;">💡 Export your hike data to share between devices</p>
-        </div>
-    </div>
-
-    <!-- CALENDAR PAGE -->
-    <div id="calendarPage" class="page">
-        <div class="card">
-            <div class="card-header"><div class="card-title"><i class="fas fa-calendar-alt"></i> Hike Calendar 2025</div></div>
-            <div id="calendarView"></div>
+            <p style="font-size: 11px; color: #6b8c6b; margin-top: 16px;">💡 Export from one device, import on another to sync your hikes</p>
         </div>
     </div>
 </div>
 
-<!-- Add/Edit Hike Modal -->
 <div id="hikeModal" class="modal">
     <div class="modal-content">
         <h3 id="modalTitle" style="margin-bottom: 20px; font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #2d6a4f;">Add Hike</h3>
         <div class="form-group"><label>🏔️ Hike Name</label><input type="text" id="hikeName" placeholder="e.g., Zermatt - Riffelsee"></div>
-        <div class="form-group"><label>📍 Region</label><select id="hikeRegion"><option value="valais">Valais</option><option value="vaud">Vaud</option><option value="bern">Bernese Oberland</option><option value="fribourg">Fribourg</option></select></div>
+        <div class="form-group"><label>📍 Region</label><select id="hikeRegion"><option value="valais">Valais</option><option value="vaud">Vaud</option><option value="bern">Bernese Oberland</option></select></div>
         <div class="form-group"><label>📏 Distance (km)</label><input type="number" id="hikeDistance" step="0.5" placeholder="e.g., 12.5"></div>
         <div class="form-group"><label>⬆️ Elevation Gain (m)</label><input type="number" id="hikeElevation" placeholder="e.g., 850"></div>
         <div class="form-group"><label>⏱️ Duration (hours)</label><input type="number" id="hikeDuration" step="0.5" placeholder="e.g., 4.5"></div>
         <div class="form-group"><label>⭐ Difficulty</label><select id="hikeDifficulty"><option value="Easy">Easy 🟢</option><option value="Moderate">Moderate 🟡</option><option value="Hard">Hard 🔴</option></select></div>
         <div class="form-group"><label>📅 Date Planned</label><input type="date" id="hikeDate"></div>
-        <div class="form-group"><label>📝 Notes</label><textarea id="hikeNotes" rows="2" placeholder="Starting point, cable car info, tips..."></textarea></div>
+        <div class="form-group"><label>📝 Notes</label><textarea id="hikeNotes" rows="2" placeholder="Starting point, cable car, tips..."></textarea></div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeHikeModal()">Cancel</button>
             <button class="btn-primary" onclick="saveHike()">Save Hike</button>
@@ -353,150 +340,96 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    // ========== DATA ==========
     let hikes = [
-        { id: 1, name: "Zermatt - Riffelsee Lake", region: "valais", distance: 9.5, elevation: 450, duration: 3.5, difficulty: "Easy", date: "2025-07-15", notes: "Start from Gornergrat station, stunning Matterhorn view", completed: false },
-        { id: 2, name: "Verbier - Lac de Louvie", region: "valais", distance: 12, elevation: 620, duration: 4.5, difficulty: "Moderate", date: "2025-07-20", notes: "Mountain lake, crystal clear water", completed: false },
+        { id: 1, name: "Zermatt - Riffelsee Lake", region: "valais", distance: 9.5, elevation: 450, duration: 3.5, difficulty: "Easy", date: "2025-07-15", notes: "Start from Gornergrat station", completed: false },
+        { id: 2, name: "Verbier - Lac de Louvie", region: "valais", distance: 12, elevation: 620, duration: 4.5, difficulty: "Moderate", date: "2025-07-20", notes: "Mountain lake", completed: false },
         { id: 3, name: "Grindelwald - Bachalpsee", region: "bern", distance: 8, elevation: 380, duration: 3, difficulty: "Easy", date: "2025-08-01", notes: "Famous lake with Eiger view", completed: true },
-        { id: 4, name: "Les Diablerets - Glacier 3000", region: "vaud", distance: 11, elevation: 520, duration: 4, difficulty: "Moderate", date: "2025-08-10", notes: "Peak walk, suspension bridge", completed: false },
-        { id: 5, name: "Mürren - Rotstockhütte", region: "bern", distance: 14, elevation: 780, duration: 5.5, difficulty: "Hard", date: "2025-08-20", notes: "Via ferrata option, breathtaking views", completed: false }
+        { id: 4, name: "Les Diablerets - Glacier 3000", region: "vaud", distance: 11, elevation: 520, duration: 4, difficulty: "Moderate", date: "2025-08-10", notes: "Peak walk", completed: false },
+        { id: 5, name: "Mürren - Rotstockhütte", region: "bern", distance: 14, elevation: 780, duration: 5.5, difficulty: "Hard", date: "2025-08-20", notes: "Via ferrata option", completed: false }
     ];
-    
-    let nextId = 6;
-    let chart;
-    let currentPlannerFilter = 'all';
-    let currentToursFilter = 'all';
+    let nextId = 6, chart, currentPlannerFilter = 'all', currentToursFilter = 'all';
 
-    // Pre-made Magic Pass tours
     const magicTours = [
-        { name: "Zermatt - Gornergrat Panorama Trail", region: "valais", distance: 11.5, elevation: 350, duration: 4, difficulty: "Easy", lift: "Gornergratbahn", description: "Incredible Matterhorn views throughout" },
-        { name: "Verbier - Mont Fort", region: "valais", distance: 13, elevation: 650, duration: 5, difficulty: "Moderate", lift: "Verbier Cable Car", description: "Highest peak in the Verbier area" },
-        { name: "Saas-Fee - Mittelallalin", region: "valais", distance: 8, elevation: 280, duration: 3, difficulty: "Easy", lift: "Metro Alpin", description: "Highest underground funicular in the world" },
-        { name: "Grindelwald - First to Bachalpsee", region: "bern", distance: 7.5, elevation: 300, duration: 2.5, difficulty: "Easy", lift: "Firstbahn", description: "Classic Swiss panorama hike" },
-        { name: "Les Diablerets - Sex Rouge", region: "vaud", distance: 10, elevation: 480, duration: 3.5, difficulty: "Moderate", lift: "Glacier 3000", description: "Glacier walk and peak views" },
-        { name: "Schwarzsee - Zermatt", region: "valais", distance: 15, elevation: 820, duration: 6, difficulty: "Hard", lift: "Schwarzsee Bahn", description: "Challenging descent with Matterhorn views" },
-        { name: "Kandersteg - Oeschinensee", region: "bern", distance: 9, elevation: 420, duration: 3.5, difficulty: "Moderate", lift: "Oeschinensee Bahn", description: "Turquoise mountain lake" },
-        { name: "Château-d'Oex - La Braye", region: "vaud", distance: 12, elevation: 550, duration: 4, difficulty: "Moderate", lift: "La Braye Télésiège", description: "Ballooning capital views" }
+        { name: "Zermatt - Gornergrat Panorama Trail", region: "valais", distance: 11.5, elevation: 350, duration: 4, difficulty: "Easy", lift: "Gornergratbahn", description: "Matterhorn views" },
+        { name: "Verbier - Mont Fort", region: "valais", distance: 13, elevation: 650, duration: 5, difficulty: "Moderate", lift: "Verbier Cable Car", description: "Highest peak" },
+        { name: "Saas-Fee - Mittelallalin", region: "valais", distance: 8, elevation: 280, duration: 3, difficulty: "Easy", lift: "Metro Alpin", description: "Highest underground funicular" },
+        { name: "Grindelwald - First to Bachalpsee", region: "bern", distance: 7.5, elevation: 300, duration: 2.5, difficulty: "Easy", lift: "Firstbahn", description: "Classic Swiss panorama" },
+        { name: "Les Diablerets - Sex Rouge", region: "vaud", distance: 10, elevation: 480, duration: 3.5, difficulty: "Moderate", lift: "Glacier 3000", description: "Glacier walk" },
+        { name: "Kandersteg - Oeschinensee", region: "bern", distance: 9, elevation: 420, duration: 3.5, difficulty: "Moderate", lift: "Oeschinensee Bahn", description: "Turquoise lake" }
     ];
 
     function updateStats() {
-        const total = hikes.length;
-        const completed = hikes.filter(h => h.completed).length;
-        const totalKm = hikes.reduce((sum, h) => sum + h.distance, 0);
-        const totalElev = hikes.reduce((sum, h) => sum + h.elevation, 0);
-        document.getElementById('totalHikes').innerText = total;
-        document.getElementById('completedHikes').innerText = completed;
-        document.getElementById('totalKm').innerText = totalKm.toFixed(0);
-        document.getElementById('totalElevation').innerText = totalElev;
+        document.getElementById('totalHikes').innerText = hikes.length;
+        document.getElementById('completedHikes').innerText = hikes.filter(h => h.completed).length;
+        document.getElementById('totalKm').innerText = hikes.reduce((s, h) => s + h.distance, 0).toFixed(0);
+        document.getElementById('totalElevation').innerText = hikes.reduce((s, h) => s + h.elevation, 0);
     }
 
     function renderHikes() {
         let filtered = hikes;
         if (currentPlannerFilter === 'planned') filtered = hikes.filter(h => !h.completed);
         else if (currentPlannerFilter === 'completed') filtered = hikes.filter(h => h.completed);
-        else if (['valais', 'vaud', 'bern', 'fribourg'].includes(currentPlannerFilter)) filtered = hikes.filter(h => h.region === currentPlannerFilter);
-        
+        else if (['valais', 'vaud', 'bern'].includes(currentPlannerFilter)) filtered = hikes.filter(h => h.region === currentPlannerFilter);
         const container = document.getElementById('hikesList');
-        if (filtered.length === 0) { container.innerHTML = '<p style="text-align:center; padding:40px;">No hikes found. Add your first adventure!</p>'; return; }
-        
+        if (filtered.length === 0) { container.innerHTML = '<p style="text-align:center; padding:40px;">No hikes found.</p>'; return; }
         container.innerHTML = filtered.map(h => `
-            <div class="hike-item" onclick="openEditHike(${h.id})">
-                <div>
+            <div class="hike-item">
+                <div style="flex:1;">
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <strong>${h.name}</strong>
                         <span class="region-tag">${h.region.toUpperCase()}</span>
                         ${h.completed ? '<span style="color:#40916c;">✓ Completed</span>' : '<span style="color:#e9b35f;">⏳ Planned</span>'}
                     </div>
                     <div style="font-size:12px; color:#6b8c6b; margin-top:4px;">
-                        📏 ${h.distance} km | ⬆️ ${h.elevation} m | ⏱️ ${h.duration} h | ${h.difficulty}
+                        📏 ${h.distance} km | ⬆️ ${h.elevation} m | ⏱️ ${h.duration} h | <span class="difficulty-${h.difficulty.toLowerCase()}">${h.difficulty}</span>
                     </div>
                     ${h.notes ? `<div style="font-size:11px; color:#8aa88a; margin-top:4px;">💡 ${h.notes.substring(0, 60)}</div>` : ''}
                 </div>
-                <div><i class="fas fa-chevron-right" style="color:#2d6a4f;"></i></div>
+                <div style="display:flex; gap:8px;">
+                    <button class="complete-btn" onclick="toggleComplete(${h.id})">${h.completed ? '↺ Undo' : '✓ Complete'}</button>
+                    <button class="btn-secondary" onclick="openEditHike(${h.id})" style="padding:4px 12px;">✏️</button>
+                </div>
             </div>
         `).join('');
     }
 
     function renderTours() {
-        let filtered = magicTours;
-        if (currentToursFilter !== 'all') filtered = magicTours.filter(t => t.difficulty.toLowerCase() === currentToursFilter);
-        
+        let filtered = currentToursFilter === 'all' ? magicTours : magicTours.filter(t => t.difficulty === currentToursFilter);
         const container = document.getElementById('toursList');
         container.innerHTML = filtered.map(t => `
-            <div class="hike-item" onclick="quickAddFromTour('${t.name}', '${t.region}', ${t.distance}, ${t.elevation}, ${t.duration}, '${t.difficulty}')">
-                <div>
+            <div class="hike-item">
+                <div style="flex:1;">
                     <div><strong>${t.name}</strong> <span class="region-tag">${t.region.toUpperCase()}</span></div>
-                    <div style="font-size:12px; color:#6b8c6b; margin:4px 0;">
-                        📏 ${t.distance} km | ⬆️ ${t.elevation} m | ⏱️ ${t.duration} h
-                        <span class="difficulty-${t.difficulty.toLowerCase()}"> ${t.difficulty}</span>
-                    </div>
-                    <div style="font-size:11px; color:#8aa88a;">🚠 ${t.lift} - ${t.description}</div>
+                    <div style="font-size:12px; margin:4px 0;">📏 ${t.distance} km | ⬆️ ${t.elevation} m | ⏱️ ${t.duration} h | ${t.difficulty}</div>
+                    <div style="font-size:11px;">🚠 ${t.lift} - ${t.description}</div>
                 </div>
-                <div><button class="btn-secondary" onclick="event.stopPropagation(); quickAddFromTour('${t.name}', '${t.region}', ${t.distance}, ${t.elevation}, ${t.duration}, '${t.difficulty}')" style="padding:4px 12px;">+ Add</button></div>
+                <div><button class="btn-primary" onclick="quickAdd('${t.name}', '${t.region}', ${t.distance}, ${t.elevation}, ${t.duration}, '${t.difficulty}')" style="padding:6px 16px;">+ Add</button></div>
             </div>
         `).join('');
     }
 
-    function quickAddFromTour(name, region, distance, elevation, duration, difficulty) {
-        hikes.push({
-            id: nextId++, name: name, region: region, distance: distance, elevation: elevation,
-            duration: duration, difficulty: difficulty, date: "", notes: `Magic Pass tour - ${difficulty} hike`, completed: false
-        });
-        refreshAll();
-        saveToLocalStorage();
-        alert(`✅ "${name}" added to your planner!`);
+    function quickAdd(name, region, distance, elevation, duration, difficulty) {
+        hikes.push({ id: nextId++, name, region, distance, elevation, duration, difficulty, date: "", notes: "Magic Pass tour", completed: false });
+        refreshAll(); saveToLocalStorage();
+        alert(`✅ "${name}" added!`);
     }
 
+    function toggleComplete(id) { const h = hikes.find(h => h.id === id); if (h) h.completed = !h.completed; refreshAll(); saveToLocalStorage(); }
     function updateChart() {
-        const regions = { valais: 0, vaud: 0, bern: 0, fribourg: 0 };
-        const difficulties = { Easy: 0, Moderate: 0, Hard: 0 };
-        hikes.forEach(h => { if (regions[h.region] !== undefined) regions[h.region]++; difficulties[h.difficulty]++; });
-        
+        const regions = { valais: 0, vaud: 0, bern: 0 }, diffs = { Easy: 0, Moderate: 0, Hard: 0 };
+        hikes.forEach(h => { if (regions[h.region] !== undefined) regions[h.region]++; diffs[h.difficulty]++; });
         if (chart) chart.destroy();
         const ctx = document.getElementById('statsChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: ['Valais', 'Vaud', 'Bern', 'Fribourg'], datasets: [{ label: 'Hikes by Region', data: [regions.valais, regions.vaud, regions.bern, regions.fribourg], backgroundColor: '#40916c', borderRadius: 8 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
-        });
-        document.getElementById('statsDetails').innerHTML = `
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; text-align:center; margin-top:20px;">
-                <div><span style="display:block; font-size:28px; font-weight:700; color:#2d6a4f;">${difficulties.Easy}</span>Easy Hikes</div>
-                <div><span style="display:block; font-size:28px; font-weight:700; color:#e9b35f;">${difficulties.Moderate}</span>Moderate Hikes</div>
-                <div><span style="display:block; font-size:28px; font-weight:700; color:#c97e5a;">${difficulties.Hard}</span>Hard Hikes</div>
-            </div>
-            <div style="margin-top:20px; padding:16px; background:#e8f0e8; border-radius:16px; text-align:center;">
-                <i class="fas fa-calendar-check"></i> ${hikes.filter(h => h.completed).length} / ${hikes.length} hikes completed
-            </div>
-        `;
-    }
-
-    function renderCalendar() {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        let html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:20px;">';
-        for (let m = 6; m <= 9; m++) {
-            const monthHikes = hikes.filter(h => h.date && new Date(h.date).getMonth() === m);
-            html += `<div style="background:#f0f8f0; border-radius:20px; padding:16px;">
-                        <h4 style="color:#2d6a4f; margin-bottom:12px;">${months[m]} 2025</h4>
-                        ${monthHikes.length ? monthHikes.map(h => `<div style="padding:8px 0; border-bottom:1px solid #d4e4d0;"><strong>📅 ${h.date?.split('-')[2]}</strong> - ${h.name}<br><small>${h.distance}km | ${h.difficulty}</small></div>`).join('') : '<p style="color:#8aa88a;">No hikes planned</p>'}
-                    </div>`;
-        }
-        html += '</div>';
-        document.getElementById('calendarView').innerHTML = html;
+        chart = new Chart(ctx, { type: 'bar', data: { labels: ['Valais', 'Vaud', 'Bern'], datasets: [{ label: 'Hikes by Region', data: [regions.valais, regions.vaud, regions.bern], backgroundColor: '#40916c', borderRadius: 8 }] }, options: { responsive: true } });
+        document.getElementById('statsDetails').innerHTML = `<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; text-align:center; margin-top:20px;"><div><span style="font-size:28px; font-weight:700;">${diffs.Easy}</span><br>Easy</div><div><span style="font-size:28px; font-weight:700;">${diffs.Moderate}</span><br>Moderate</div><div><span style="font-size:28px; font-weight:700;">${diffs.Hard}</span><br>Hard</div></div><div style="margin-top:20px; padding:16px; background:#e8f0e8; border-radius:16px; text-align:center;">🏆 ${hikes.filter(h => h.completed).length} / ${hikes.length} completed</div>`;
     }
 
     function openAddHikeModal() {
         document.getElementById('modalTitle').innerText = 'Add New Hike';
-        document.getElementById('hikeName').value = '';
+        ['hikeName','hikeDistance','hikeElevation','hikeDuration','hikeDate','hikeNotes'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('hikeRegion').value = 'valais';
-        document.getElementById('hikeDistance').value = '';
-        document.getElementById('hikeElevation').value = '';
-        document.getElementById('hikeDuration').value = '';
         document.getElementById('hikeDifficulty').value = 'Easy';
-        document.getElementById('hikeDate').value = '';
-        document.getElementById('hikeNotes').value = '';
         document.getElementById('deleteHikeBtn').style.display = 'none';
         window.editHikeId = null;
         document.getElementById('hikeModal').classList.add('active');
@@ -529,70 +462,40 @@
         const date = document.getElementById('hikeDate').value;
         const notes = document.getElementById('hikeNotes').value;
         if (!name || isNaN(distance) || isNaN(elevation) || isNaN(duration)) { alert("Please fill all required fields"); return; }
-        
         if (window.editHikeId) {
-            const index = hikes.findIndex(x => x.id === window.editHikeId);
-            if (index !== -1) { hikes[index] = { ...hikes[index], name, region, distance, elevation, duration, difficulty, date, notes }; }
-        } else {
-            hikes.push({ id: nextId++, name, region, distance, elevation, duration, difficulty, date, notes, completed: false });
-        }
-        closeHikeModal();
-        refreshAll();
-        saveToLocalStorage();
+            const idx = hikes.findIndex(x => x.id === window.editHikeId);
+            if (idx !== -1) hikes[idx] = { ...hikes[idx], name, region, distance, elevation, duration, difficulty, date, notes };
+        } else hikes.push({ id: nextId++, name, region, distance, elevation, duration, difficulty, date, notes, completed: false });
+        closeHikeModal(); refreshAll(); saveToLocalStorage();
     }
 
-    function deleteCurrentHike() {
-        if (window.editHikeId && confirm("Delete this hike?")) {
-            hikes = hikes.filter(h => h.id !== window.editHikeId);
-            closeHikeModal();
-            refreshAll();
-            saveToLocalStorage();
-        }
-    }
-
-    function toggleComplete(id) {
-        const hike = hikes.find(h => h.id === id);
-        if (hike) hike.completed = !hike.completed;
-        refreshAll();
-        saveToLocalStorage();
-    }
-
+    function deleteCurrentHike() { if (window.editHikeId && confirm("Delete this hike?")) { hikes = hikes.filter(h => h.id !== window.editHikeId); closeHikeModal(); refreshAll(); saveToLocalStorage(); } }
     function closeHikeModal() { document.getElementById('hikeModal').classList.remove('active'); }
-
-    function refreshAll() { updateStats(); renderHikes(); renderTours(); updateChart(); renderCalendar(); }
-
+    function refreshAll() { updateStats(); renderHikes(); renderTours(); updateChart(); }
     function saveToLocalStorage() { localStorage.setItem('magicPassHikes', JSON.stringify(hikes)); }
     function loadFromLocalStorage() { const saved = localStorage.getItem('magicPassHikes'); if (saved) { hikes = JSON.parse(saved); nextId = Math.max(...hikes.map(h => h.id), 0) + 1; } }
 
-    function exportData() {
-        const dataStr = JSON.stringify({ hikes: hikes, version: "1.0" }, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `magic-pass-hikes-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        alert("✅ Hikes exported!");
-    }
-
-    function importData(input) {
-        const file = input.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (imported.hikes) { hikes = imported.hikes; refreshAll(); saveToLocalStorage(); alert(`✅ Imported ${hikes.length} hikes!`); }
-                else alert("Invalid file");
-            } catch(err) { alert("Error reading file"); }
-            input.value = '';
-        };
-        reader.readAsText(file);
-    }
+    function exportData() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ hikes }, null, 2)], { type: "application/json" })); a.download = `magic-pass-hikes-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(a.href); alert("✅ Exported!"); }
+    function importData(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { try { const imported = JSON.parse(e.target.result); if (imported.hikes) { hikes = imported.hikes; refreshAll(); saveToLocalStorage(); alert(`✅ Imported ${hikes.length} hikes!`); } } catch(err) { alert("Invalid file"); } input.value = ''; }; reader.readAsText(file); }
 
     function showPage(pageName) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(pageName + 'Page').classList.add('active');
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        const clicked = Array.from(document.querySelectorAll('.nav-tab')).find
+        const clicked = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.getAttribute('data-page') === pageName);
+        if (clicked) clicked.classList.add('active');
+        if (pageName === 'stats') updateChart();
+    }
+
+    document.querySelectorAll('.nav-tab').forEach(btn => { btn.onclick = () => showPage(btn.getAttribute('data-page')); });
+    document.querySelectorAll('#plannerFilters .filter-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('#plannerFilters .filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentPlannerFilter = btn.getAttribute('data-filter'); renderHikes(); }; });
+    document.querySelectorAll('#toursFilters .filter-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('#toursFilters .filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); currentToursFilter = btn.getAttribute('data-filter'); renderTours(); }; });
+
+    window.openAddHikeModal = openAddHikeModal; window.openEditHike = openEditHike; window.closeHikeModal = closeHikeModal;
+    window.saveHike = saveHike; window.deleteCurrentHike = deleteCurrentHike; window.toggleComplete = toggleComplete;
+    window.quickAdd = quickAdd; window.exportData = exportData; window.importData = importData;
+
+    loadFromLocalStorage(); refreshAll();
+</script>
+</body>
+</html>
